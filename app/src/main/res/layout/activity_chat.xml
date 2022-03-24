@@ -112,6 +112,13 @@
                 />
 
         </LinearLayout>
+        <ProgressBar
+            android:layout_width="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_height="20dp"
+            android:id="@+id/prgrsbrid"
+            android:layout_above="@+id/i"
+            />
 
 
     </RelativeLayout>

@@ -16,6 +16,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,11 +58,14 @@ public class chat extends AppCompatActivity {
     private ArrayList<onechat> msgslist  ;
     private ArrayList<String> msgslist2;
     public Boolean ver ;
+    ProgressBar prgrsbr ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        prgrsbr = findViewById(R.id.prgrsbrid);
+        prgrsbr.setVisibility(View.VISIBLE);
         back = findViewById(R.id.backid);
         rv = findViewById(R.id.rvid);
         send = findViewById(R.id.sendid);
@@ -84,6 +88,16 @@ public class chat extends AppCompatActivity {
                 finish();
             }
         });
+        msgslist.clear();
+        adptr.notifyItemRangeRemoved(msgslist.size() , msgslist.size());
+
+        FirebaseFirestore.getInstance().collection("chat")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .collection(getIntent().getExtras().getString("id"))
+                .orderBy("realtime")
+                .addSnapshotListener(eventListener);
+
+
 
         if(getIntent().getExtras().getString("x").equals("1")) {
 
@@ -99,7 +113,8 @@ public class chat extends AppCompatActivity {
                     .child(getIntent().getExtras().getString("id")).child("state").setValue("s");
 
 
-        }else {
+        }
+        else {
 
 
 
@@ -157,7 +172,7 @@ public class chat extends AppCompatActivity {
 
 
 
-        FirebaseDatabase.getInstance().getReference().child("users").child(getIntent().getExtras().getString("id")).addValueEventListener(new ValueEventListener() {
+       /* FirebaseDatabase.getInstance().getReference().child("users").child(getIntent().getExtras().getString("id")).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 name.setText(snapshot.child("name").getValue().toString());
@@ -173,9 +188,28 @@ public class chat extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        });*/
 
-        FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).addValueEventListener(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("users").child(getIntent().getExtras().getString("id"))
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        name.setText(snapshot.child("name").getValue().toString());
+                        if(!snapshot.child("image").getValue().toString().equals("")){
+                            imgstr = snapshot.child("image").getValue().toString() ;
+                            byte[] decodedString = Base64.decode( imgstr, Base64.DEFAULT);
+                            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            prflimg.setImageBitmap(decodedByte);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+       /* FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 namestr= snapshot.child("name").getValue().toString() ;
@@ -188,7 +222,22 @@ public class chat extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        });*/
+        FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        namestr= snapshot.child("name").getValue().toString() ;
+                        if(!snapshot.child("image").getValue().toString().equals("")){
+                            imgstrr = snapshot.child("image").getValue().toString() ;
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
 
 
 
@@ -373,11 +422,6 @@ public class chat extends AppCompatActivity {
             }
         });
 
-        FirebaseFirestore.getInstance().collection("chat")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .collection(getIntent().getExtras().getString("id"))
-                .orderBy("realtime")
-                .addSnapshotListener(eventListener);
 
     }
 
@@ -414,6 +458,7 @@ public class chat extends AppCompatActivity {
             adptr.notifyDataSetChanged();
             adptr.notifyItemRangeInserted(msgslist.size(), msgslist.size());
             rv.smoothScrollToPosition(msgslist.size());
+prgrsbr.setVisibility(View.INVISIBLE);
 
         }
 
