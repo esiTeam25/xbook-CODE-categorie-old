@@ -86,10 +86,18 @@ public class chat extends AppCompatActivity {
         });
 
         if(getIntent().getExtras().getString("x").equals("1")) {
-            FirebaseFirestore.getInstance().collection("recent").document("plus")
+
+
+          /*  FirebaseFirestore.getInstance().collection("recent").document("plus")
                     .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
                     .document(getIntent().getExtras().getString("id"))
-                    .update("state" , "s"  ) ;
+                    .update("state" , "s"  ) ;*/
+
+
+            FirebaseDatabase.getInstance().getReference().child("recent").child("plus")
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .child(getIntent().getExtras().getString("id")).child("state").setValue("s");
+
 
         }else {
 
@@ -100,7 +108,7 @@ public class chat extends AppCompatActivity {
 
 
 
-            FirebaseFirestore.getInstance().collection("recent").document("plus")
+           /* FirebaseFirestore.getInstance().collection("recent").document("plus")
                     .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
                     .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
@@ -119,12 +127,23 @@ public class chat extends AppCompatActivity {
                     }
 
                 }} );
+*/
+            FirebaseDatabase.getInstance().getReference().child("recent").child("plus")
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if(snapshot.hasChild(getIntent().getExtras().getString("id"))){
+                        FirebaseDatabase.getInstance().getReference().child("recent").child("plus")
+                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .child(getIntent().getExtras().getString("id")).child("state").setValue("s");
+                    }
+                }
 
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
-
-
-
-
+                }
+            });
 
 
 
@@ -195,7 +214,75 @@ public class chat extends AppCompatActivity {
 
 
 
-                    FirebaseFirestore.getInstance().collection("recent").document("plus")
+
+
+               /*     FirebaseDatabase.getInstance().getReference().child("recent").child("plus")
+                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.hasChild(getIntent().getExtras().getString("id"))){
+
+                                FirebaseDatabase.getInstance().getReference().child("recent").child("plus").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                        .child(getIntent().getExtras().getString("id")).child("msg").setValue(text);
+
+                                FirebaseDatabase.getInstance().getReference().child("recent").child("plus").child(getIntent().getExtras().getString("id"))
+                                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("msg").setValue(text);
+
+                                FirebaseDatabase.getInstance().getReference().child("recent").child("plus").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                        .child(getIntent().getExtras().getString("id")).child("time").setValue(ServerValue.TIMESTAMP);
+
+                                FirebaseDatabase.getInstance().getReference().child("recent").child("plus").child(getIntent().getExtras().getString("id"))
+                                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("time").setValue(ServerValue.TIMESTAMP);
+
+                                FirebaseDatabase.getInstance().getReference().child("recent").child("plus").child(getIntent().getExtras().getString("id"))
+                                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("state").setValue("n");
+                                msgslist2.add("done") ;
+
+                            }
+                            if ( msgslist2.size()==0 ){*/
+                                HashMap<String  ,Object> mp = new HashMap<>();
+                                mp.put("name" ,name.getText().toString());
+                                mp.put("msg", text );
+                                mp.put("state" , "s");
+                                mp.put("id",getIntent().getExtras().getString("id") );
+                                mp.put("time", ServerValue.TIMESTAMP  );
+                                //  mp.put("image" , imgstr);
+                               /* FirebaseFirestore.getInstance().collection("recent").document("plus")
+                                        .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
+                                        .document(getIntent().getExtras().getString("id")).set(mp);*/
+                                FirebaseDatabase.getInstance().getReference().child("recent").child("plus")
+                                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                        .child(getIntent().getExtras().getString("id")).setValue(mp);
+                                HashMap<String  ,Object> mp2 = new HashMap<>();
+
+                                mp2.put("name" ,namestr);
+                                mp2.put("msg",text);
+                                mp2.put("state" , "n");
+                                mp.put("id", FirebaseAuth.getInstance().getCurrentUser().getUid().toString() );
+                                mp2.put("time",ServerValue.TIMESTAMP );
+                                //  mp2.put("image" , imgstrr);
+                               /* FirebaseFirestore.getInstance().collection("recent").document("plus")
+                                        .collection(getIntent().getExtras().getString("id"))
+                                        .document(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).set(mp2);*/
+                    FirebaseDatabase.getInstance().getReference().child("recent").child("plus")
+                            .child(getIntent().getExtras().getString("id"))
+                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(mp2);
+
+                         /*   }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+
+
+                    });*/
+
+
+/*
+                 FirebaseFirestore.getInstance().collection("recent").document("plus")
                             .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
                             .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
@@ -209,19 +296,13 @@ public class chat extends AppCompatActivity {
                                             .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
                                             .document(getIntent().getExtras().getString("id"))
                                             .update("msg" , text ) ;
-                                      /*    FirebaseFirestore.getInstance().collection("recent").document("plus")
-                                                  .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
-                                                  .document(getIntent().getExtras().getString("id"))
-                                                  .update("image" , imgstr) ;*/
+
 
                                     FirebaseFirestore.getInstance().collection("recent").document("plus")
                                             .collection(getIntent().getExtras().getString("id"))
                                             .document(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
                                             .update("msg" , text ) ;
-                                      /*    FirebaseFirestore.getInstance().collection("recent").document("plus")
-                                                  .collection(getIntent().getExtras().getString("id"))
-                                                  .document(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
-                                                  .update("image" , imgstrr ) ;*/
+
 
                                     FirebaseFirestore.getInstance().collection("recent").document("plus")
                                             .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
@@ -281,8 +362,7 @@ public class chat extends AppCompatActivity {
 
 
 
-
-
+*/
 
 
 

@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,7 +45,7 @@ public class recentadapter extends RecyclerView.Adapter<recentadapter.userholder
     @Override
     public void onBindViewHolder(@NonNull userholder holder, int position) {
         recentuser u = userlist.get(position);
-        FirebaseFirestore.getInstance().collection("recent").document("plus")
+      /*  FirebaseFirestore.getInstance().collection("recent").document("plus")
                 .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
                 .document(u.getId()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -55,7 +56,24 @@ public class recentadapter extends RecyclerView.Adapter<recentadapter.userholder
                     holder.msg.setTextSize(TypedValue.COMPLEX_UNIT_SP,22);
                 }
             }
-        }) ;
+        }) ;*/
+        FirebaseDatabase.getInstance().getReference().child("recent").child("plus").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child(u.getId()).child("state").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.getValue().toString().equals("s")){
+                    holder.msg.setTextColor(Color.parseColor("#FFFFFF"));
+                    holder.msg.setTypeface(Typeface.DEFAULT_BOLD);
+                    holder.msg.setTextSize(TypedValue.COMPLEX_UNIT_SP,22);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
 
         holder.name.setText(u.getName());
         FirebaseDatabase.getInstance().getReference("users").child(u.getId()).addValueEventListener(new ValueEventListener() {

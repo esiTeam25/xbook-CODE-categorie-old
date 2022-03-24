@@ -33,7 +33,7 @@ static  Bitmap bookimage = null ;
                     Intent i = new Intent(view.getContext(), chat.class);
                     i.putExtra("id", getIntent().getExtras().getString("id"));
 
-                    i.putExtra("x", "1");
+                    i.putExtra("x", "2");
                     startActivity(i);
                 }
             });
