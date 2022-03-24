@@ -54,18 +54,13 @@ public class chatfragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_chatfragment, container, false);
-        Toast.makeText(getContext(), "oncreate", Toast.LENGTH_SHORT).show();
-
         rv = v.findViewById(R.id.rvid);
         rvlst = new ArrayList<>();
         rv.setHasFixedSize(true);
         rv.setLayoutManager( new LinearLayoutManager(getContext()));
         adptr = new recentadapter(rvlst);
         rv.setAdapter(adptr);
-        //gillette();
 
-
-      //  gillette();
 
 
 
@@ -86,10 +81,7 @@ public class chatfragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-
-        Toast.makeText(getContext(), "onresume", Toast.LENGTH_SHORT).show();
-       gillette();
+        getRecentUpdates();
     }
 
 
@@ -129,7 +121,7 @@ public class chatfragment extends Fragment {
     };
 
 
-    public void gillette() {
+    public void getRecentUpdates() {
        /* FirebaseFirestore.getInstance().collection("recent").document("plus")
                 .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).orderBy("time" , Query.Direction.DESCENDING).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
