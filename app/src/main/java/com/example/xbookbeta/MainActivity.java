@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar tlbr ;
     private TabLayout tl ;
     private ViewPager vp ;
+    private long pressedTime;
 
 
     @Override
@@ -137,5 +139,15 @@ if ( FirstActivity.locationToUpload!=null ){
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (pressedTime + 2000 > System.currentTimeMillis()) {
+            super.onBackPressed();
 
+            super.onBackPressed();
+            finish();
+        } else {
+            Toast.makeText(getBaseContext(), "Press back again to exit", Toast.LENGTH_SHORT).show();
+        }
+        pressedTime = System.currentTimeMillis();    }
 }

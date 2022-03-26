@@ -3,18 +3,18 @@ package com.example.xbookbeta;
 import java.util.Date;
 
 public class onechat {
-    String senderid , receiverid , msg  ;
-    public Date date ;
+    String senderid , receiverid , msg , date ;
+   // public Date date ;
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    public onechat(String senderid, String receiverid, String msg , Date date ) {
+    public onechat(String senderid, String receiverid, String msg , String date ) {
         this.senderid = senderid;
         this.receiverid = receiverid;
         this.msg = msg;

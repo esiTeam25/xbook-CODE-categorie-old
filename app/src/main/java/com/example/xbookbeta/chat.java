@@ -2,6 +2,8 @@ package com.example.xbookbeta;
 
 import static android.content.ContentValues.TAG;
 
+import static java.text.DateFormat.getDateTimeInstance;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +25,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,6 +43,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Document;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -91,11 +95,71 @@ public class chat extends AppCompatActivity {
         msgslist.clear();
         adptr.notifyItemRangeRemoved(msgslist.size() , msgslist.size());
 
-        FirebaseFirestore.getInstance().collection("chat")
+    /*    FirebaseFirestore.getInstance().collection("chat")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .collection(getIntent().getExtras().getString("id"))
                 .orderBy("realtime")
                 .addSnapshotListener(eventListener);
+*/
+        FirebaseDatabase.getInstance().getReference().child("chat").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(!snapshot.hasChild(getIntent().getExtras().getString("id"))) {
+                            prgrsbr.setVisibility(View.INVISIBLE);
+                        }
+                        }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+        FirebaseDatabase.getInstance().getReference().child("chat").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
+                .child(getIntent().getExtras().getString("id")).orderByChild("realtime")
+                .addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                      //  for ( DataSnapshot ds : snapshot.getChildren()) {
+
+                            onechat one = new onechat(
+                               /* documentChange.getDocument().getString("senderid"),
+                                documentChange.getDocument().getString("receiverid"),
+                                documentChange.getDocument().getString("msg"),
+                                documentChange.getDocument().getDate("time")*/
+                                    snapshot.child("senderid").getValue().toString(),
+                                    snapshot.child("receiverid").getValue().toString(),
+                                    snapshot.child("msg").getValue().toString(),
+                                    getTimeDate((long) snapshot.child("realtime").getValue())
+
+                            );
+                            msgslist.add(one);
+                       // }
+                        adptr.notifyDataSetChanged();
+                        adptr.notifyItemRangeInserted(msgslist.size(), msgslist.size());
+                        rv.smoothScrollToPosition(msgslist.size());
+                        prgrsbr.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
 
 
 
@@ -115,12 +179,6 @@ public class chat extends AppCompatActivity {
 
         }
         else {
-
-
-
-
-
-
 
 
            /* FirebaseFirestore.getInstance().collection("recent").document("plus")
@@ -251,16 +309,21 @@ public class chat extends AppCompatActivity {
                     message.put("receiverid",getIntent().getExtras().getString("id") );
                     message.put("msg" , text );
                     message.put("time" , new Date());
-                    message.put("realtime", FieldValue.serverTimestamp() );
+                    message.put("realtime", ServerValue.TIMESTAMP );
 
 
 
-                    FirebaseFirestore.getInstance().collection("chat").document(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
-                            .collection(getIntent().getExtras().getString("id")).add(message);
-                    FirebaseFirestore.getInstance().collection("chat").document(getIntent().getExtras().getString("id"))
-                            .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).add(message);
+                   /* FirebaseFirestore.getInstance().collection("chat").document(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
+                            .collection(getIntent().getExtras().getString("id")).add(message);*/
+                    FirebaseDatabase.getInstance().getReference().child("chat").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString())
+                            .child(getIntent().getExtras().getString("id")).push().setValue(message);
 
 
+                   /* FirebaseFirestore.getInstance().collection("chat").document(getIntent().getExtras().getString("id"))
+                            .collection(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).add(message);*/
+
+                    FirebaseDatabase.getInstance().getReference().child("chat").child(getIntent().getExtras().getString("id"))
+                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).push().setValue(message);
 
 
 
@@ -302,8 +365,12 @@ public class chat extends AppCompatActivity {
                                 FirebaseDatabase.getInstance().getReference().child("recent").child("plus")
                                         .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                         .child(getIntent().getExtras().getString("id")).setValue(mp);
-                                HashMap<String  ,Object> mp2 = new HashMap<>();
 
+
+
+
+
+                                HashMap<String  ,Object> mp2 = new HashMap<>();
                                 mp2.put("name" ,namestr);
                                 mp2.put("msg",text);
                                 mp2.put("state" , "n");
@@ -435,7 +502,7 @@ public class chat extends AppCompatActivity {
 
 
 
-    private final EventListener<QuerySnapshot> eventListener  =(value, error) -> {
+    /*private final EventListener<QuerySnapshot> eventListener  =(value, error) -> {
         if (error != null) {
             return;
         }
@@ -465,7 +532,7 @@ prgrsbr.setVisibility(View.INVISIBLE);
 
 
 
-    };
+    };*/
 
 
 
@@ -475,7 +542,15 @@ prgrsbr.setVisibility(View.INVISIBLE);
 
 
 
-
+    public static String getTimeDate(long timestamp){
+        try{
+            DateFormat dateFormat = getDateTimeInstance();
+            Date netDate = (new Date(timestamp));
+            return dateFormat.format(netDate);
+        } catch(Exception e) {
+            return "date";
+        }
+    }
 
 
 

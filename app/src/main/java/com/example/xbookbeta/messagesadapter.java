@@ -38,13 +38,13 @@ public class messagesadapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             msgsntholder msgsnthldr = (msgsntholder) holder;
             onechat o = msglist.get(position);
             msgsnthldr.msg.setText(o.getMsg());
-            msgsnthldr.time.setText( new SimpleDateFormat( "dd/MM/yy h:mm a"  , Locale.FRANCE).format(o.getDate()));
+            msgsnthldr.time.setText( o.getDate());
         }
         else {
             msgrcvdholder msgrcvdhldr = (msgrcvdholder) holder;
             onechat o = msglist.get(position);
             msgrcvdhldr.msg.setText(o.getMsg());
-            msgrcvdhldr.time.setText( new SimpleDateFormat( "dd/MM/yy h:mm a"  , Locale.FRANCE).format(o.getDate()));
+            msgrcvdhldr.time.setText( o.getDate());
 
         }
 
